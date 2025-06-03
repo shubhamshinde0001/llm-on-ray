@@ -6,16 +6,17 @@ General:
   config:
     trust_remote_code: false
     use_auth_token: null
-  lora_config:
-    task_type: CAUSAL_LM
-    r: 8
-    lora_alpha: 32
-    lora_dropout: 0.1
+
+  # OPTIONAL: If you're not using LoRA, disable it
+  lora_config: null
+
   enable_gradient_checkpointing: false
+
 Dataset:
   train_file: examples/data/sample_finetune_data_small.jsonl
   validation_file: null
   validation_split_percentage: 5
+
 Training:
   optimizer: adamw_torch
   batch_size: 2
@@ -23,11 +24,20 @@ Training:
   learning_rate: 1.0e-05
   lr_scheduler: linear
   weight_decay: 0.0
-  mixed_precision: bf16
+
+  # ❌ bf16 is NOT supported on CPU — use float32
+  mixed_precision: "no"
+
+  # ✅ Force CPU usage
   device: cpu
-  num_training_workers: 2
+
+  # ✅ Only one worker — you have a CPU, not a cluster
+  num_training_workers: 1
+
   resources_per_worker:
-    CPU: 32
-  accelerate_mode: DDP
+    CPU: 2
+
+  accelerate_mode: "NO"  # Avoid DDP / multi-GPU distributed training
+
   gradient_accumulation_steps: 1
   logging_steps: 10
